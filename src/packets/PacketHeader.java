@@ -64,4 +64,17 @@ public class PacketHeader {
     public int getPlayerCarIndex() {
         return playerCarIndex;
     }
+
+    public String toString(){
+        return "Packet Header: \n" +
+                "Packet format: " + packetFormat +
+                "\nMajor version: " + gameMajorVersion +
+                "\nMinor version: " + gameMinorVersion +
+                "\nPacket ID: " + packetID +
+                "\nSession UID: " + sessionUID +
+                "\nSession time: " + sessionTime +
+                "\nFrame ID: " + frameID +
+                "\nPlayer car index: " + playerCarIndex +"\n\n";
+
+    }
 }
