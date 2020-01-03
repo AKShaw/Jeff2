@@ -1,7 +1,6 @@
 package uk.co.alexks.jeff2;
 
-import uk.co.alexks.jeff2.packets.PacketHeader;
-import uk.co.alexks.jeff2.packets.SessionPacket;
+import uk.co.alexks.jeff2.packets.*;
 
 import java.io.IOException;
 import java.net.DatagramSocket;
@@ -64,34 +63,44 @@ public class TelemetryListener implements Runnable {
                         packetID, sessionUID, sessionTime, frameID, playerCarIndex);
 
                 //Depending on the packet type, create a packet object
+                byte[] packet;
                 switch(packetID){
                     case 0:
-                        //Motion uk.co.alexks.jeff2.packets
+                        //Motion packets
                         break;
                     case 1:
-                        //Session uk.co.alexks.jeff2.packets
-                        byte[] packet = new byte[149];
+                        //Session packets
+                        packet = new byte[149];
                         bb.get(packet);
                         //TODO: Neither frame or session time resets when a flashback occurs, find another way to track them.
                         fullSession.addToSessionLog(frameID, SessionPacket.createSessionPacket(packet, ph));
                         break;
                     case 2:
-                        //Lap data uk.co.alexks.jeff2.packets
+                        //Lap data packets
+                        packet = new byte[843];
+                        bb.get(packet);
+                        fullSession.addToLapDataLog(frameID, LapDataPacket.createLapDataPacket(packet, ph));
                         break;
                     case 3:
-                        //Event uk.co.alexks.jeff2.packets
+                        //Event packets
                         break;
                     case 4:
-                        //Participants uk.co.alexks.jeff2.packets
+                        //Participants packets
                         break;
                     case 5:
-                        //Car setup uk.co.alexks.jeff2.packets
+                        //Car packets
                         break;
                     case 6:
-                        //Car telemetry uk.co.alexks.jeff2.packets
+                        //Car telemetry packets
+                        packet = new byte[1347];
+                        bb.get(packet);
+                        fullSession.addToCarTelemetryLog(frameID, CarTelemetryPacket.createCarTelemetryPacket(packet, ph));
                         break;
                     case 7:
-                        //Car status uk.co.alexks.jeff2.packets
+                        //Car status packets
+                        packet = new byte[1143];
+                        bb.get(packet);
+                        fullSession.addToCarStatusLog(frameID, CarStatusPacket.createCarStatusPacket(packet, ph));
                         break;
                     default:
                         break;
@@ -124,5 +133,4 @@ public class TelemetryListener implements Runnable {
     public static int uint8ToInt(byte b) {
         return 0xFF & b;
     }
-
 }

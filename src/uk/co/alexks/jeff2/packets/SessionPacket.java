@@ -214,4 +214,12 @@ class MarshallZone{
     public int getZoneFlag() {
         return zoneFlag;
     }
+
+    @Override
+    public String toString() {
+        return "MarshallZone{" +
+                "zoneStart=" + zoneStart +
+                ", zoneFlag=" + zoneFlag +
+                '}';
+    }
 }

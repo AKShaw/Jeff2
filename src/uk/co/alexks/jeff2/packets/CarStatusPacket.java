@@ -1,5 +1,10 @@
 package uk.co.alexks.jeff2.packets;
 
+import uk.co.alexks.jeff2.TelemetryListener;
+
+import java.nio.ByteBuffer;
+import java.util.Arrays;
+
 /**
  * Car status packet based on https://forums.codemasters.com/topic/44592-f1-2019-udp-specification/
  *
@@ -15,12 +20,68 @@ public class CarStatusPacket {
         this.carStatusDatas = carStatusDatas;
     }
 
+    public static CarStatusPacket createCarStatusPacket(byte[] packet, PacketHeader header){
+        ByteBuffer bb = ByteBuffer.wrap(packet);
+        CarStatusData[] csd = new CarStatusData[20];
+        for(int i = 0; i < 20; i++){
+            int tractionControlLevel = TelemetryListener.uint8ToInt(bb.get());
+            boolean absEnabled = TelemetryListener.uint8ToInt(bb.get())==1;
+            int fuelMix = TelemetryListener.uint8ToInt(bb.get());
+            int frontBrakeBias = TelemetryListener.uint8ToInt(bb.get());
+            boolean pitLimEnabled = TelemetryListener.uint8ToInt(bb.get())==1;
+            float fuelInTank = bb.getFloat();
+            float fuelCapacity = bb.getFloat();
+            float fuelRemainingLaps = bb.get();
+            int maxRPM = TelemetryListener.uint16ToInt(bb.get(), bb.get());
+            int idleRPM = TelemetryListener.uint16ToInt(bb.get(), bb.get());
+            int maxGears = TelemetryListener.uint8ToInt(bb.get());
+            boolean drsAllowed = TelemetryListener.uint8ToInt(bb.get())==1;
+            int[] tyreWears = new int[4];
+            for(int j = 0; j<4; j++){
+                tyreWears[j] = TelemetryListener.uint8ToInt(bb.get());
+            }
+
+            int actualTyreCompound = TelemetryListener.uint8ToInt(bb.get());
+            int visualTyreCompound = TelemetryListener.uint8ToInt(bb.get());
+            int[] tyreDamages = new int[4];
+            for(int j = 0; j<4; j++){
+                tyreDamages[j] = TelemetryListener.uint8ToInt(bb.get());
+            }
+
+            int frontLeftWingDamage = TelemetryListener.uint8ToInt(bb.get());
+            int frontRightWingDamage = TelemetryListener.uint8ToInt(bb.get());
+            int rearWingDamage = TelemetryListener.uint8ToInt(bb.get());
+            int engineDamage = TelemetryListener.uint8ToInt(bb.get());
+            int gearboxDamage = TelemetryListener.uint8ToInt(bb.get());
+            int vehicleFIAFlag = bb.get();
+            float ersStoredEnergy = bb.getFloat();
+            int ersDeployMode = TelemetryListener.uint8ToInt(bb.get());
+            float ersHarvestedThisLapMGUK = bb.getFloat();
+            float ersHarvestedThisLapMGUH = bb.getFloat();
+            float ersDeployedThisLap = bb.getFloat();
+            csd[i] = new CarStatusData(tractionControlLevel, absEnabled, fuelMix, frontBrakeBias, pitLimEnabled,
+                    fuelInTank, fuelCapacity, fuelRemainingLaps, maxRPM, idleRPM, maxGears, drsAllowed, tyreWears,
+                    actualTyreCompound, visualTyreCompound, tyreDamages, frontLeftWingDamage, frontRightWingDamage,
+                    rearWingDamage, engineDamage, gearboxDamage, vehicleFIAFlag, ersStoredEnergy, ersDeployMode, ersHarvestedThisLapMGUK,
+                    ersHarvestedThisLapMGUH, ersDeployedThisLap);
+        }
+        return new CarStatusPacket(header, csd);
+    }
+
     public PacketHeader getPacketHeader() {
         return packetHeader;
     }
 
     public CarStatusData[] getCarStatusDatas() {
         return carStatusDatas;
+    }
+
+    @Override
+    public String toString() {
+        return "CarStatusPacket{" +
+                "packetHeader=" + packetHeader +
+                ", carStatusDatas=" + Arrays.toString(carStatusDatas) +
+                '}';
     }
 }
 
@@ -36,7 +97,7 @@ class CarStatusData{
     private int maxRPM;
     private int idleRPM;
     private int maxGears;
-    private int drsAllowed;
+    private boolean drsAllowed;
     private int[] tyreWears;
     private int actualTyreCompound;
     private int visualTyreCompound;
@@ -55,7 +116,7 @@ class CarStatusData{
 
     public CarStatusData(int tractionControlLevel, boolean absEnabled, int fuelMix, int frontBrakeBias,
                          boolean pitLimEnabled, float fuelInTank, float fuelCapacity, float fuelRemainingLaps,
-                         int maxRPM, int idleRPM, int maxGears, int drsAllowed, int[] tyreWears, int actualTyreCompound,
+                         int maxRPM, int idleRPM, int maxGears, boolean drsAllowed, int[] tyreWears, int actualTyreCompound,
                          int visualTyreCompound, int[] tyreDamages, int frontLeftWingDamage, int frontRightWingDamage,
                          int rearWingDamage, int engineDamage, int gearboxDamage, int vehicleFIAFlag,
                          float ersStoredEnergy, int ersDeployMode, float ersHarvestedThisLapMGUK,
@@ -133,7 +194,7 @@ class CarStatusData{
         return maxGears;
     }
 
-    public int getDrsAllowed() {
+    public boolean getDrsAllowed() {
         return drsAllowed;
     }
 
@@ -195,5 +256,38 @@ class CarStatusData{
 
     public float getErsDeployedThisLap() {
         return ersDeployedThisLap;
+    }
+
+    @Override
+    public String toString() {
+        return "CarStatusData{" +
+                "tractionControlLevel=" + tractionControlLevel +
+                ", absEnabled=" + absEnabled +
+                ", fuelMix=" + fuelMix +
+                ", frontBrakeBias=" + frontBrakeBias +
+                ", pitLimEnabled=" + pitLimEnabled +
+                ", fuelInTank=" + fuelInTank +
+                ", fuelCapacity=" + fuelCapacity +
+                ", fuelRemainingLaps=" + fuelRemainingLaps +
+                ", maxRPM=" + maxRPM +
+                ", idleRPM=" + idleRPM +
+                ", maxGears=" + maxGears +
+                ", drsAllowed=" + drsAllowed +
+                ", tyreWears=" + Arrays.toString(tyreWears) +
+                ", actualTyreCompound=" + actualTyreCompound +
+                ", visualTyreCompound=" + visualTyreCompound +
+                ", tyreDamages=" + Arrays.toString(tyreDamages) +
+                ", frontLeftWingDamage=" + frontLeftWingDamage +
+                ", frontRightWingDamage=" + frontRightWingDamage +
+                ", rearWingDamage=" + rearWingDamage +
+                ", engineDamage=" + engineDamage +
+                ", gearboxDamage=" + gearboxDamage +
+                ", vehicleFIAFlag=" + vehicleFIAFlag +
+                ", ersStoredEnergy=" + ersStoredEnergy +
+                ", ersDeployMode=" + ersDeployMode +
+                ", ersHarvestedThisLapMGUK=" + ersHarvestedThisLapMGUK +
+                ", ersHarvestedThisLapMGUH=" + ersHarvestedThisLapMGUH +
+                ", ersDeployedThisLap=" + ersDeployedThisLap +
+                '}';
     }
 }
