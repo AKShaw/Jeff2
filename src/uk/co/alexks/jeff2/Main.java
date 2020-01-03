@@ -4,10 +4,14 @@ import uk.co.alexks.jeff2.packets.CarStatusPacket;
 import uk.co.alexks.jeff2.packets.CarTelemetryPacket;
 import uk.co.alexks.jeff2.packets.LapDataPacket;
 import uk.co.alexks.jeff2.packets.SessionPacket;
+import uk.co.alexks.jeff2.test.TestTelemetry;
 
+import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -27,7 +31,7 @@ public class Main {
         System.out.println(map.toString());
          */
 
-        FullSession fs = new FullSession();
+        /*FullSession fs = new FullSession();
         TelemetryListener tl = new TelemetryListener(fs);
         Thread tlThread = new Thread(tl);
         tlThread.start();
@@ -39,7 +43,13 @@ public class Main {
             e.printStackTrace();
         }
 
-        System.exit(0);
+        System.exit(0);*/
+
+        /*ArrayList<String> test = new ArrayList<>();
+        test.add("One");
+        test.add("Two");
+        System.out.println(test.toString());
+        System.out.println((Object) test.toString());*/
 
 
         /*int[] test = new int[5];
@@ -47,6 +57,10 @@ public class Main {
         for(Integer i : test){
             System.out.println(i);
         }*/
+
+        TestTelemetry tt = new TestTelemetry();
+        String location = "C:\\Users\\Alex\\Desktop\\f1telemetry.txt";
+        tt.saveTelemetryToFile(new File(location));
     }
 
     static private void populateArray(int[] a){

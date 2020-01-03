@@ -2,7 +2,7 @@ package uk.co.alexks.jeff2;
 
 import uk.co.alexks.jeff2.packets.*;
 
-import java.io.IOException;
+import java.io.*;
 import java.net.DatagramSocket;
 import java.net.DatagramPacket;
 import java.nio.ByteBuffer;
@@ -21,7 +21,8 @@ public class TelemetryListener implements Runnable {
     private FullSession fullSession;
     private DatagramSocket ds;
     private DatagramPacket dp;
-    private List<PacketHeader> temp = new ArrayList();
+    private File saveLocation = null;
+    private BufferedWriter bufferedWriter;
 
     /**
      * Initialise sockets and uk.co.alexks.jeff2.packets
@@ -29,6 +30,20 @@ public class TelemetryListener implements Runnable {
     public TelemetryListener(FullSession fs){
         this.fullSession = fs;
         try {
+            ds = new DatagramSocket(PORT);
+            byte[] buffer = new byte[MAX_BUFFER_SIZE];
+            dp = new DatagramPacket(buffer, buffer.length);
+        } catch (IOException e){
+            e.printStackTrace();
+        }
+    }
+
+    public TelemetryListener(FullSession fs, File saveLocation){
+        this.fullSession = fs;
+        this.saveLocation = saveLocation;
+        try {
+            FileOutputStream fos = new FileOutputStream(saveLocation);
+            bufferedWriter = new BufferedWriter(new OutputStreamWriter(fos));
             ds = new DatagramSocket(PORT);
             byte[] buffer = new byte[MAX_BUFFER_SIZE];
             dp = new DatagramPacket(buffer, buffer.length);
@@ -73,13 +88,17 @@ public class TelemetryListener implements Runnable {
                         packet = new byte[149];
                         bb.get(packet);
                         //TODO: Neither frame or session time resets when a flashback occurs, find another way to track them.
-                        fullSession.addToSessionLog(frameID, SessionPacket.createSessionPacket(packet, ph));
+                        SessionPacket sessionPacket = SessionPacket.createSessionPacket(packet, ph);
+                        fullSession.addToSessionLog(frameID, sessionPacket);
+                        if (saveLocation!=null) {savePacket(sessionPacket);}
                         break;
                     case 2:
                         //Lap data packets
                         packet = new byte[843];
                         bb.get(packet);
-                        fullSession.addToLapDataLog(frameID, LapDataPacket.createLapDataPacket(packet, ph));
+                        LapDataPacket lapDataPacket = LapDataPacket.createLapDataPacket(packet, ph);
+                        fullSession.addToLapDataLog(frameID, lapDataPacket);
+                        if (saveLocation!=null) {savePacket(lapDataPacket);}
                         break;
                     case 3:
                         //Event packets
@@ -94,13 +113,17 @@ public class TelemetryListener implements Runnable {
                         //Car telemetry packets
                         packet = new byte[1347];
                         bb.get(packet);
-                        fullSession.addToCarTelemetryLog(frameID, CarTelemetryPacket.createCarTelemetryPacket(packet, ph));
+                        CarTelemetryPacket carTelemPacket = CarTelemetryPacket.createCarTelemetryPacket(packet, ph);
+                        fullSession.addToCarTelemetryLog(frameID, carTelemPacket);
+                        if (saveLocation!=null) {savePacket(carTelemPacket);}
                         break;
                     case 7:
                         //Car status packets
                         packet = new byte[1143];
                         bb.get(packet);
-                        fullSession.addToCarStatusLog(frameID, CarStatusPacket.createCarStatusPacket(packet, ph));
+                        CarStatusPacket carStatusPacket = CarStatusPacket.createCarStatusPacket(packet, ph);
+                        fullSession.addToCarStatusLog(frameID, carStatusPacket);
+                        if (saveLocation!=null) {savePacket(carStatusPacket);}
                         break;
                     default:
                         break;
@@ -108,6 +131,21 @@ public class TelemetryListener implements Runnable {
 
                 dp.setLength(MAX_BUFFER_SIZE);
             }
+        } catch (IOException e){
+            e.printStackTrace();
+        } finally {
+            try {
+                bufferedWriter.close();
+            } catch (IOException e){
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void savePacket(Object packet){
+        try {
+            bufferedWriter.write(packet.toString());
+            bufferedWriter.newLine();
         } catch (IOException e){
             e.printStackTrace();
         }
