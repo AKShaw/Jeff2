@@ -1,4 +1,4 @@
-package packets;
+package uk.co.alexks.jeff2.packets;
 
 /**
  * Car telemetry packet based on https://forums.codemasters.com/topic/44592-f1-2019-udp-specification/

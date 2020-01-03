@@ -1,4 +1,4 @@
-package packets;
+package uk.co.alexks.jeff2.packets;
 
 /**
  * Packet header based on https://forums.codemasters.com/topic/44592-f1-2019-udp-specification/
@@ -65,16 +65,18 @@ public class PacketHeader {
         return playerCarIndex;
     }
 
-    public String toString(){
-        return "Packet Header: \n" +
-                "Packet format: " + packetFormat +
-                "\nMajor version: " + gameMajorVersion +
-                "\nMinor version: " + gameMinorVersion +
-                "\nPacket ID: " + packetID +
-                "\nSession UID: " + sessionUID +
-                "\nSession time: " + sessionTime +
-                "\nFrame ID: " + frameID +
-                "\nPlayer car index: " + playerCarIndex +"\n\n";
-
+    @Override
+    public String toString() {
+        return "PacketHeader{" +
+                "packetFormat=" + packetFormat +
+                ", gameMajorVersion=" + gameMajorVersion +
+                ", gameMinorVersion=" + gameMinorVersion +
+                ", packetVersion=" + packetVersion +
+                ", packetID=" + packetID +
+                ", sessionUID=" + sessionUID +
+                ", sessionTime=" + sessionTime +
+                ", frameID=" + frameID +
+                ", playerCarIndex=" + playerCarIndex +
+                '}';
     }
 }

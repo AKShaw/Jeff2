@@ -1,6 +1,8 @@
+package uk.co.alexks.jeff2;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
-import packets.*;
+import uk.co.alexks.jeff2.packets.*;
 
 /**
  * Holds information about the session.
@@ -42,6 +44,8 @@ public class FullSession {
             sessionLog.keySet().removeIf(e -> (e >= key));
         }
         sessionLog.put(key, value);
+        System.out.println("Length: " + sessionLog.size());
+        System.out.println("Added:\n "+ value.toString());
     }
 
     public void addToLapDataLog(int key, LapDataPacket value){
